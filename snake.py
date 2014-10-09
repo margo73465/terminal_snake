@@ -24,8 +24,9 @@ class FrameCounter(object):
 
 class SnakeGame(object):
     def __init__(self, width, height):
-        self.snake_segments = [Point(x=10, y=10), Point(x=10, y=11), Point(x=10, y=12)]
-        self.apple = Point(x=13, y=10)
+        self.center = Point(x=width/2, y=height/2)
+        self.snake_segments = [self.center, Point(self.center.x - 1, self.center.y), Point(self.center.x - 2, self.center.y)]
+        self.apple = Point(x=randint(1, width - 2), y=randint(1, height - 2))
         self.width = width
         self.height = height
         self.direction = Point(x=1, y=0)
@@ -72,13 +73,14 @@ class SnakeGame(object):
             while self.apple in self.snake_segments:
                 self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
     def deathSequence(self, a):
-        a[10, 10] = red('X')
-        a[10, 14] = red('X')
-        a[12, 10] = red('_')
-        a[12, 11] = red('_')
-        a[12, 12] = red('_')
-        a[12, 13] = red('_')
-        a[12, 14] = red('_')
+        a[self.center.y, self.center.x - 4] = bold('G')
+        a[self.center.y, self.center.x - 3] = bold('A')
+        a[self.center.y, self.center.x - 2] = bold('M')
+        a[self.center.y, self.center.x - 1] = bold('E')
+        a[self.center.y, self.center.x + 1] = bold('O')
+        a[self.center.y, self.center.x + 2] = bold('V')
+        a[self.center.y, self.center.x + 3] = bold('E')
+        a[self.center.y, self.center.x + 4] = bold('R')
         return a
 
 def main():
