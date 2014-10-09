@@ -2,10 +2,11 @@ import itertools, time, random
 from curtsies import FullscreenWindow, Input, FSArray
 from curtsies.fmtfuncs import red, bold, green, on_blue, yellow, on_red, blue
 from collections import namedtuple
+from random import randint
 
 Point = namedtuple("Point",["x","y"])
 
-MAX_FPS = 1
+MAX_FPS = 10
 time_per_frame = 1. / MAX_FPS
 #isDead = False
 
@@ -23,11 +24,13 @@ class FrameCounter(object):
 
 class SnakeGame(object):
     def __init__(self, width, height):
-        self.snake_segments = [Point(10, 10), Point(10, 11), Point(10, 12)]
+        self.snake_segments = [Point(x=10, y=10), Point(x=10, y=11), Point(x=10, y=12)]
+        self.apple = Point(x=13, y=10)
         self.width = width
         self.height = height
         self.direction = Point(x=1, y=0)
         self.isDead = False
+        self.snake_length = 3
     def render(self):
         a = FSArray(self.height, self.width)
         # Border
@@ -37,24 +40,37 @@ class SnakeGame(object):
         for j in range(0, self.height):
             a[j, 0] = bold('*')
             a[j, self.width - 1] = bold('*')
+        # Add an apple!
+        self.create_apple(a)
         # If not dead, add snake to screen
         if not self.isDead:
             for seg in self.snake_segments:
                 a[seg.y, seg.x] = blue('X')
+            a[self.apple.y, self.apple.x] = red('Q')
             return a
         else:
             a = self.deathSequence(a)
             return a
+
     def move(self):
     	new_x = self.snake_segments[0].x + self.direction.x
     	new_y = self.snake_segments[0].y + self.direction.y
     	if new_x == 0 or new_x == self.width or new_y == 0 or new_y == self.height:
     		self.isDead = True
-        elif (new_x, new_y) in self.snake_segments:
+        elif Point(new_x, new_y) in self.snake_segments:
             self.isDead = True
     	else:
-        	self.snake_segments.insert(0, Point(new_x, new_y))
-        	self.snake_segments.pop(3)
+            self.snake_segments.insert(0, Point(new_x, new_y))
+            if Point(new_x, new_y) == self.apple:
+                self.apple = None
+                self.snake_length += 1
+            else:
+                self.snake_segments.pop(self.snake_length)
+    def create_apple(self, a):
+        if self.apple is None:
+            self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
+            while self.apple in self.snake_segments:
+                self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
     def deathSequence(self, a):
         a[10, 10] = red('X')
         a[10, 14] = red('X')
