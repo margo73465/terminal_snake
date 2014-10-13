@@ -7,7 +7,7 @@ from random import randint
 
 Point = namedtuple("Point",["x","y"])
 
-MAX_FPS = 10
+MAX_FPS = 100
 time_per_frame = 1. / MAX_FPS
 #isDead = False
 
@@ -33,6 +33,7 @@ class SnakeGame(object):
         self.direction = Point(x=1, y=0)
         self.isDead = False
         self.snake_length = 3
+        self.score = 0
     def render(self):
         a = FSArray(self.height, self.width)
         # Border
@@ -42,9 +43,12 @@ class SnakeGame(object):
         for j in range(0, self.height):
             a[j, 0] = bold('*')
             a[j, self.width - 1] = bold('*')
-        # Add an apple!
+        # Display score in bottom right corner
+        score_string = 'SCORE: %d' %self.score
+        a[(self.height - 1):self.height, (self.width - len(score_string)):self.width] = [score_string]
+        # Create an apple!
         self.create_apple(a)
-        # If not dead, add snake to screen
+        # If not dead, add snake and apple to screen
         if not self.isDead:
             for seg in self.snake_segments:
                 a[seg.y, seg.x] = green('X')
@@ -57,8 +61,10 @@ class SnakeGame(object):
     def move(self):
     	new_x = self.snake_segments[0].x + self.direction.x
     	new_y = self.snake_segments[0].y + self.direction.y
-    	if new_x == 0 or new_x == self.width - 1 or new_y == 0 or new_y == self.height - 1:
+    	# Check whether snake has hit the wall
+        if new_x == 0 or new_x == self.width - 1 or new_y == 0 or new_y == self.height - 1:
     		self.isDead = True
+        # Check whether snake has hit itself
         elif Point(new_x, new_y) in self.snake_segments:
             self.isDead = True
     	else:
@@ -66,16 +72,19 @@ class SnakeGame(object):
             if Point(new_x, new_y) == self.apple:
                 self.apple = None
                 self.snake_length += 1
+                self.score += 10
             else:
                 self.snake_segments.pop(self.snake_length)
     def create_apple(self, a):
         if self.apple is None:
             self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
+            # Make sure that the apple doesn't show up inside the snake!
             while self.apple in self.snake_segments:
                 self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
     def deathSequence(self, a):
     	a[(self.center.y - 1):(self.center.y), (self.center.x - 5):(self.center.x + 4)] = fsarray([red('GAME OVER')])
     	return a
+
 
 
 def opening_screen(width, height):
@@ -91,7 +100,7 @@ def opening_screen(width, height):
     # Title
     a[(center.y - 5):(center.y - 4), (center.x - 5):(center.x + 5)] = fsarray([green('WELCOME TO')])
     a[(center.y - 4):(center.y - 3), (center.x - 7):(center.x + 8)] = fsarray([green('PYTHON PYTHON!')])
-    a[(center.y):(center.y + 1), (center.x - 13):(center.x + 13)] = fsarray([str('Press any key to continue')])	
+    a[(center.y):(center.y + 1), (center.x - 13):(center.x + 13)] = ['Press any key to continue']
     a[(center.y + 10):(center.y + 11), (center.x - 10):(center.x + 10)] = fsarray([str('Press escape to exit')]) 
     return a
 
@@ -99,9 +108,6 @@ def opening_screen(width, height):
 def main():
     counter = FrameCounter()
     with FullscreenWindow() as window:
-    	# Why don't we see this? 
-        #print('Press escape to exit')
-        
         with Input() as input_generator:
             a = opening_screen(window.width, window.height)
             window.render_to_terminal(a)
