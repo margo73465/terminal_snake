@@ -1,6 +1,7 @@
 import itertools, time, random
-from curtsies import FullscreenWindow, Input, FSArray
-from curtsies.fmtfuncs import red, bold, green, on_blue, yellow, on_red, blue
+from curtsies import FullscreenWindow, Input, FSArray, fsarray
+#from curtsies.fmtfuncs import red, bold, green, on_blue, yellow, on_red, blue
+from curtsies.fmtfuncs import *
 from collections import namedtuple
 from random import randint
 
@@ -46,7 +47,7 @@ class SnakeGame(object):
         # If not dead, add snake to screen
         if not self.isDead:
             for seg in self.snake_segments:
-                a[seg.y, seg.x] = blue('X')
+                a[seg.y, seg.x] = green('X')
             a[self.apple.y, self.apple.x] = red('Q')
             return a
         else:
@@ -56,7 +57,7 @@ class SnakeGame(object):
     def move(self):
     	new_x = self.snake_segments[0].x + self.direction.x
     	new_y = self.snake_segments[0].y + self.direction.y
-    	if new_x == 0 or new_x == self.width or new_y == 0 or new_y == self.height:
+    	if new_x == 0 or new_x == self.width - 1 or new_y == 0 or new_y == self.height - 1:
     		self.isDead = True
         elif Point(new_x, new_y) in self.snake_segments:
             self.isDead = True
@@ -73,28 +74,46 @@ class SnakeGame(object):
             while self.apple in self.snake_segments:
                 self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
     def deathSequence(self, a):
-        a[self.center.y, self.center.x - 4] = bold('G')
-        a[self.center.y, self.center.x - 3] = bold('A')
-        a[self.center.y, self.center.x - 2] = bold('M')
-        a[self.center.y, self.center.x - 1] = bold('E')
-        a[self.center.y, self.center.x + 1] = bold('O')
-        a[self.center.y, self.center.x + 2] = bold('V')
-        a[self.center.y, self.center.x + 3] = bold('E')
-        a[self.center.y, self.center.x + 4] = bold('R')
-        return a
+    	a[(self.center.y - 1):(self.center.y), (self.center.x - 5):(self.center.x + 4)] = fsarray([red('GAME OVER')])
+    	return a
+
+
+def opening_screen(width, height):
+    a = FSArray(height, width)
+    center = Point(x=width/2, y=height/2)
+    # Border
+    for i in range(0, width):
+        a[0, i] = bold('*')
+        a[height - 1, i] = bold('*')
+    for j in range(0, height):
+        a[j, 0] = bold('*')
+        a[j, width - 1] = bold('*')
+    # Title
+    a[(center.y - 5):(center.y - 4), (center.x - 5):(center.x + 5)] = fsarray([green('WELCOME TO')])
+    a[(center.y - 4):(center.y - 3), (center.x - 7):(center.x + 8)] = fsarray([green('PYTHON PYTHON!')])
+    a[(center.y):(center.y + 1), (center.x - 13):(center.x + 13)] = fsarray([str('Press any key to continue')])	
+    a[(center.y + 10):(center.y + 11), (center.x - 10):(center.x + 10)] = fsarray([str('Press escape to exit')]) 
+    return a
+
 
 def main():
     counter = FrameCounter()
     with FullscreenWindow() as window:
     	# Why don't we see this? 
-        print('Press escape to exit')
-        game = SnakeGame(window.width, window.height)
+        #print('Press escape to exit')
+        
         with Input() as input_generator:
+            a = opening_screen(window.width, window.height)
+            window.render_to_terminal(a)
+            start = input_generator.next()
+            if(start == '<ESC>'):
+                return
+            game = SnakeGame(window.width, window.height)
             c = None
-            last_c = '<DOWN>'
+            last_c = '<RIGHT>'
             for framenum in itertools.count(0):
 
-                a = game.render() # insert death boolean
+                a = game.render()
                 window.render_to_terminal(a)
 
                 t0 = time.time()
