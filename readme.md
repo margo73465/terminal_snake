@@ -1,5 +1,5 @@
 ### Python Python!
-A python implementation of the classic snake game for your terminal. 
+A python implementation of the classic snake game for your terminal. It's still a work in progress here are some immediate and reach goals. 
 
 ##### Basic Improvements:
 
@@ -11,6 +11,7 @@ A python implementation of the classic snake game for your terminal.
 ##### Possible Future Diresctons:
 
 * get it on the web somehow....
-* create a 2 player version
+* create a 2 player version  
   (the goal would be to trap your opponent so they hit themself or the wall)
-* record high scores (only really makes sense in web version)
+* record high scores  
+  (only really makes sense in web version)
