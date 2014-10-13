@@ -1,9 +1,7 @@
 import itertools, time, random
 from curtsies import FullscreenWindow, Input, FSArray, fsarray
-#from curtsies.fmtfuncs import red, bold, green, on_blue, yellow, on_red, blue
-from curtsies.fmtfuncs import *
+from curtsies.fmtfuncs import red, bold, green, on_blue, yellow, on_red, blue
 from collections import namedtuple
-from random import randint
 
 Point = namedtuple("Point",["x","y"])
 
@@ -27,7 +25,7 @@ class SnakeGame(object):
     def __init__(self, width, height):
         self.center = Point(x=width/2, y=height/2)
         self.snake_segments = [self.center, Point(self.center.x - 1, self.center.y), Point(self.center.x - 2, self.center.y)]
-        self.apple = Point(x=randint(1, width - 2), y=randint(1, height - 2))
+        self.apple = Point(x=random.randint(1, width - 2), y=random.randint(1, height - 2))
         self.width = width
         self.height = height
         self.direction = Point(x=1, y=0)
@@ -77,10 +75,10 @@ class SnakeGame(object):
                 self.snake_segments.pop(self.snake_length)
     def create_apple(self, a):
         if self.apple is None:
-            self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
+            self.apple = Point(x = random.randint(1, self.width - 2), y = random.randint(1, self.height - 2))
             # Make sure that the apple doesn't show up inside the snake!
             while self.apple in self.snake_segments:
-                self.apple = Point(x = randint(1, self.width - 2), y = randint(1, self.height - 2))
+                self.apple = Point(x = random.randint(1, self.width - 2), y = random.randint(1, self.height - 2))
     def deathSequence(self, a):
     	a[(self.center.y - 1):(self.center.y), (self.center.x - 5):(self.center.x + 4)] = fsarray([red('GAME OVER')])
     	return a
