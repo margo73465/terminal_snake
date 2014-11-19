@@ -32,6 +32,7 @@ class SnakeGame(object):
         self.isDead = False
         self.snake_length = 3
         self.score = 0
+    
     def render(self):
         a = FSArray(self.height, self.width)
         # Border
